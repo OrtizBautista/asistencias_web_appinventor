@@ -1,0 +1,230 @@
+<!DOCTYPE html> <!-- Indica que el documento usa HTML5 -->
+<html lang="es"> <!-- Define el idioma principal como español -->
+<head>
+  <meta charset="UTF-8"> <!-- Codificación UTF-8 (para ñ, tildes, etc.) -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Hace que la página sea responsive -->
+   <link rel="shortcut icon" href="./assets/issm logo.png" type="image/png"> 
+  <title>Panel de Preceptor - Registro de Asistencia</title> <!-- Título que aparece en la pestaña -->
+
+  <!-- Framework Bulma (para estilos CSS ya preparados) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+  
+  <!-- Librería Font Awesome (para usar íconos) -->
+  <script src="https://kit.fontawesome.com/a2d9d5b9d4.js" crossorigin="anonymous"></script>
+
+  <style>
+    /* === ESTILOS PERSONALIZADOS === */
+
+    body {
+      background-color: #d1fae5; /* Fondo verde muy claro */
+    }
+
+    /* Contenedor donde están los tres botones (Presente, Tarde, Ausente) */
+    .asistencia-buttons {
+      display: flex; /* Los muestra en línea */
+      justify-content: center; /* Centra horizontalmente */
+      gap: 0.75rem; /* Espacio entre los botones */
+    }
+
+    /* Estilos base de los botones redondos */
+    .asistencia-buttons button {
+      border-radius: 50%;  /* Forma circular */
+      width: 2.5rem;       /* Ancho fijo */
+      height: 2.5rem;      /* Alto fijo */
+      border: none;        /* Sin borde */
+      cursor: pointer;     /* Cambia el cursor al pasar el mouse */
+      transition: transform 0.15s ease, opacity 0.15s ease; /* Animación suave */
+    }
+
+    /* Efecto al pasar el mouse sobre un botón */
+    .asistencia-buttons button:hover {
+      transform: scale(1.1); /* Aumenta ligeramente el tamaño */
+      opacity: 0.8;          /* Reduce un poco la opacidad */
+    }
+
+    /* Colores según el tipo de asistencia */
+    .presente { background-color: #199646; } /* Verde */
+    .tarde { background-color: #facc15; }    /* Amarillo */
+    .ausente { background-color: #ef4444; }  /* Rojo */
+
+    /* Efecto visual para el botón seleccionado */
+    .seleccionado {
+      box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.2); /* Borde difuminado alrededor */
+      transform: scale(1.1); /* Un poco más grande */
+    }
+
+    /* Fondo verde suave de las filas de la tabla */
+    tbody {
+      background-color: #f0fdf4;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ======= BARRA SUPERIOR (NAVBAR) ======= -->
+  <nav class="navbar is-success"> <!-- "is-success" aplica color verde oscuro -->
+    <div class="navbar-brand">
+      <a class="navbar-item has-text-weight-semibold" href="#">
+        <span class="icon"><i class="fas fa-user-check"></i></span> <!-- Ícono del usuario -->
+        <span>Panel del Preceptor</span> <!-- Texto del encabezado -->
+      </a>
+    </div>
+
+    <div class="navbar-end">
+      <div class="navbar-item">
+        <!-- Botón para cerrar sesión -->
+        <button class="button is-light" onclick="window.location.href='index.html'">
+          <span class="icon"><i class="fas fa-sign-out-alt"></i></span> <!-- Ícono de salida -->
+          <span>Cerrar sesión</span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ======= ENCABEZADO (HERO) ======= -->
+  <section class="hero is-success is-small"> <!-- Hero de color verde y tamaño pequeño -->
+    <div class="hero-body has-text-centered">
+      <p class="title is-3">📅 Registro de Asistencias</p> <!-- Título principal -->
+      <p class="subtitle is-5">Marca la asistencia de cada alumno</p> <!-- Subtítulo -->
+    </div>
+  </section>
+
+  <!-- ======= CONTENIDO PRINCIPAL ======= -->
+  <section class="section">
+    <div class="container">
+      <div class="columns is-centered"> <!-- Centra el contenido horizontalmente -->
+        <div class="column is-10"> <!-- Columna que ocupa el 80% del ancho -->
+          
+          <div class="card"> <!-- Tarjeta principal -->
+            <!-- Encabezado de la tarjeta -->
+            <header class="card-header has-background-success">
+              <p class="card-header-title has-text-white">
+                <span class="icon mr-2"><i class="fas fa-clipboard-check"></i></span>
+                Asistencia diaria
+              </p>
+            </header>
+
+            <!-- Contenido dentro de la tarjeta -->
+            <div class="card-content">
+              <div class="field is-grouped is-justify-content-center mb-4">
+                <!-- Selector de fecha -->
+                <div class="control">
+                  <input id="fechaAsistencia" class="input is-rounded is-success" type="date">
+                </div>
+
+                <!-- Botón para guardar -->
+                <div class="control">
+                  <button id="btnGuardar" class="button is-success is-rounded">
+                    <span class="icon"><i class="fas fa-save"></i></span> <!-- Ícono de guardar -->
+                    <span>Guardar Asistencia</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Tabla de alumnos -->
+              <div class="table-container">
+                <table class="table is-striped is-hoverable is-fullwidth">
+                  <thead>
+                    <tr class="has-background-success has-text-white">
+                      <th>Alumno</th> <!-- Columna con el nombre -->
+                      <th class="has-text-centered">Marcar Asistencia</th> <!-- Columna de botones -->
+                    </tr>
+                  </thead>
+                  <tbody id="tablaAlumnos" class="has-text-centered"></tbody> <!-- Aquí se insertan las filas dinámicamente -->
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pie de página -->
+          <div class="has-text-centered mt-5">
+            <p class="is-size-7 has-text-grey">Sistema de Asistencias - Colegio Santa María © 2025</p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======= SCRIPT PRINCIPAL ======= -->
+ <script>
+  const API_URL = "https://script.google.com/macros/s/AKfycbyeYm7INKpq_v-8XJfXzR8WJBDpFUHXGqkNN3trNqnD2T1ESxs71NDlhAuWwq653FtsWQ/exec";
+
+  const alumnos = [
+    "Ortiz Bautista","Romero Mia","Fernandez Lucia","Rodriguez Abril","Bedoya Agustina",
+    "Rodriguez Ariana","Cortez Bruno","Omiñuka Bruno","Portillo Catalina","Comparin Sofia",
+    "Godoy Daniela","Britez Dinara","Cribb Elias","Rios Enzo","Pereira Franco","Rodiguez Joaquin",
+    "Imanol Vilinsky","Tschopp Juan","Damus Juan Lukas","Botello Matias","Figueredo Francisco",
+    "Retamozo Nicolas","Oriana Sosa Batista","Alegre Siomara","Ruiz Diaz Sofia","Gimenez Tanya",
+    "Bautista Victoria","Luna x","Abimaela Gomez ","Josefina Barboza","Galarza Lautaro","Paiz Martina"
+  ];
+
+  const tabla = document.getElementById("tablaAlumnos");
+  const btnGuardar = document.getElementById("btnGuardar");
+
+  alumnos.forEach(nombre => {
+    const fila = document.createElement("tr");
+    fila.innerHTML = `
+      <td>${nombre}</td>
+      <td>
+        <div class="asistencia-buttons">
+          <button class="presente" data-estado="Presente"></button>
+          <button class="tarde" data-estado="Tarde"></button>
+          <button class="ausente" data-estado="Ausente"></button>
+        </div>
+      </td>
+    `;
+    tabla.appendChild(fila);
+  });
+
+  tabla.addEventListener("click", e => {
+    if (e.target.tagName === "BUTTON") {
+      const grupo = e.target.parentElement.querySelectorAll("button");
+      grupo.forEach(btn => btn.classList.remove("seleccionado"));
+      e.target.classList.add("seleccionado");
+    }
+  });
+
+  btnGuardar.addEventListener("click", async () => {
+    const fecha = document.getElementById("fechaAsistencia").value;
+
+    if (!fecha) {
+      alert("⚠️ Debe seleccionar una fecha.");
+      return;
+    }
+
+    const registros = [];
+
+    document.querySelectorAll("#tablaAlumnos tr").forEach(fila => {
+      const nombre = fila.querySelector("td:first-child").textContent;
+      const seleccionado = fila.querySelector(".seleccionado");
+      const estado = seleccionado ? seleccionado.dataset.estado : "Sin marcar";
+
+      registros.push({ nombre, estado });
+    });
+
+try {
+  await fetch(API_URL, {
+  method: "POST",
+  mode: "no-cors",
+  headers: {
+    "Content-Type": "text/plain;charset=utf-8",
+  },
+  body: JSON.stringify({
+    fecha: fecha,
+    registros: registros
+  }),
+});
+
+alert("✅ Asistencias guardadas correctamente");
+
+} catch (error) {
+  
+  alert("❌ Error al guardar" + error);
+  
+  console.error(error);
+}
+  });
+</script>
+</body>
+</html>

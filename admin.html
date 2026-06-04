@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="shortcut icon" href="./assets/issm logo.png" type="image/png">
+
+  <title>Panel de Administrador - Reportes</title>
+
+  <!-- Bulma -->
+  <link rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+
+  <style>
+
+    body{
+      background-color:#f3f0ff;
+      min-height:100vh;
+    }
+
+    .navbar,
+    .hero{
+      background:linear-gradient(135deg,#6b21a8,#9333ea);
+    }
+
+    .navbar .navbar-item,
+    .hero .title,
+    .hero .subtitle{
+      color:white !important;
+    }
+
+    .button-purple{
+      background:#7c3aed;
+      color:white;
+      border:none;
+    }
+
+    .button-purple:hover{
+      background:#5b21b6;
+      color:white;
+    }
+
+    .notification-custom{
+      background:#ede9fe;
+      color:#4c1d95;
+      font-weight:bold;
+    }
+
+    table tbody{
+      background:#ede9fe;
+    }
+
+    table tbody tr:nth-child(even){
+      background:#e9ddff;
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- NAVBAR -->
+
+  <nav class="navbar">
+    <div class="navbar-brand">
+
+      <a class="navbar-item has-text-weight-bold">
+        📋 Panel de Administrador
+      </a>
+
+    </div>
+
+    <div class="navbar-end">
+
+      <div class="navbar-item">
+
+        <button
+          class="button is-light"
+          onclick="window.location.href='index.html'">
+
+          Cerrar sesión
+
+        </button>
+
+      </div>
+
+    </div>
+  </nav>
+
+  <!-- HERO -->
+
+  <section class="hero is-small">
+
+    <div class="hero-body has-text-centered">
+
+      <p class="title is-3">
+        Reportes de Asistencia
+      </p>
+
+      <p class="subtitle is-5">
+        Consulta las asistencias guardadas en Google Sheets
+      </p>
+
+    </div>
+
+  </section>
+
+  <!-- CONTENIDO -->
+
+  <section class="section">
+
+    <div class="container">
+
+      <div class="columns is-centered">
+
+        <div class="column is-10">
+
+          <div class="card">
+
+            <header
+              class="card-header"
+              style="background:#7c3aed;">
+
+              <p class="card-header-title has-text-white">
+                Filtrar por fecha
+              </p>
+
+            </header>
+
+            <div class="card-content">
+
+              <!-- FECHA -->
+
+              <div
+                class="columns is-centered is-vcentered mb-5">
+
+                <div class="column is-narrow">
+
+                  <div class="field has-addons">
+
+                    <div class="control">
+
+                      <input
+                        type="date"
+                        id="fechaReporte"
+                        class="input is-rounded">
+
+                    </div>
+
+                    <div class="control">
+
+                      <button
+                        id="btnVer"
+                        class="button button-purple is-rounded">
+
+                        Ver Asistencias
+
+                      </button>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+              <!-- MENSAJE -->
+
+              <div
+                id="mensaje"
+                class="notification notification-custom is-hidden has-text-centered">
+              </div>
+
+              <!-- TABLA -->
+
+              <div class="table-container">
+
+                <table
+                  class="table is-fullwidth is-striped is-hoverable"
+                  id="tablaReporte">
+
+                  <thead>
+
+                    <tr
+                      style="background:#7c3aed;color:white;">
+
+                      <th>Alumno</th>
+                      <th class="has-text-centered">Presente</th>
+                      <th class="has-text-centered">Tarde</th>
+                      <th class="has-text-centered">Ausente</th>
+
+                    </tr>
+
+                  </thead>
+
+                  <tbody class="has-text-centered">
+                  </tbody>
+
+                </table>
+
+              </div>
+
+            </div>
+
+          </div>
+
+          <!-- FOOTER -->
+
+          <div class="has-text-centered mt-5">
+
+            <p class="is-size-7 has-text-grey">
+              Sistema de Asistencias © 2026
+            </p>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- SCRIPT -->
+
+  <script>
+
+    const API_URL =
+    "https://script.google.com/macros/s/AKfycbyeYm7INKpq_v-8XJfXzR8WJBDpFUHXGqkNN3trNqnD2T1ESxs71NDlhAuWwq653FtsWQ/exec";
+
+    const btnVer =
+    document.getElementById("btnVer");
+
+    const tabla =
+    document.querySelector("#tablaReporte tbody");
+
+    const mensaje =
+    document.getElementById("mensaje");
+
+    btnVer.addEventListener("click", () => {
+
+      const fecha =
+      document.getElementById("fechaReporte").value;
+
+      tabla.innerHTML = "";
+
+      mensaje.classList.add("is-hidden");
+
+      if (!fecha) {
+
+        mensaje.classList.remove("is-hidden");
+
+        mensaje.textContent =
+        "⚠️ Seleccioná una fecha.";
+
+        return;
+
+      }
+
+      // CALLBACK JSONP
+
+      window.cargarDatos = function(data){
+
+        const registros =
+        data.filter(fila => fila[1] === fecha);
+
+        if(registros.length === 0){
+
+          mensaje.classList.remove("is-hidden");
+
+          mensaje.textContent =
+          "No hay asistencias registradas.";
+
+          return;
+
+        }
+
+        registros.forEach(r => {
+
+          const fila =
+          document.createElement("tr");
+
+          fila.innerHTML = `
+            <td>${r[0]}</td>
+
+            <td>
+              ${r[2] === "Presente" ? "✔️" : ""}
+            </td>
+
+            <td>
+              ${r[2] === "Tarde" ? "✔️" : ""}
+            </td>
+
+            <td>
+              ${r[2] === "Ausente" ? "✔️" : ""}
+            </td>
+          `;
+
+          tabla.appendChild(fila);
+
+        });
+
+      };
+
+      // CREAR SCRIPT JSONP
+
+      const script =
+      document.createElement("script");
+
+      script.src =
+      API_URL +
+      "?callback=cargarDatos";
+
+      document.body.appendChild(script);
+
+    });
+
+  </script>
+
+</body>
+</html>
